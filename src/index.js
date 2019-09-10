@@ -10,27 +10,34 @@ const faker = require('faker');
 function createSomething(user) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            neode.create('Action', { user, type: faker.hacker.verb() })
-                .then(action => {
-                    console.log(action.id())
+            if ( !user ) return resolve();
 
-                    resolve(action);
-                })
+            neode.create('Action', { user, type: faker.hacker.verb() })
+                .then(resolve)
                 .catch(reject)
         }, Math.floor(Math.random() * 1000) )
     });
 }
 
 
+function createThingsRecursively(users) {
+    return Promise.all( [ ...Array(100).keys() ].map(() => {
+        return createSomething( users.get( Math.floor( Math.random() * users.length - 1 ) ) )
+    }) )
+    .then(res => {
+        console.log(res.length, 'events created');
+
+        return createThingsRecursively(users)
+    })
+}
+
+
 
 neode.all('User')
-    .then(users => {
-        return Promise.all( [ ...Array(1000).keys() ].map(() => {
-            return createSomething( users.get( Math.floor( Math.random() * users.length ) ) )
-        }) )
-    })
+    .then(users => createThingsRecursively(users))
     .catch(e => {
         console.log(e)
+
         neode.close()
     })
 
