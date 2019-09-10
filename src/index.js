@@ -25,7 +25,7 @@ function createThingsRecursively(users) {
         return createSomething( users.get( Math.floor( Math.random() * users.length - 1 ) ) )
     }) )
     .then(res => {
-        console.log(res.length, 'events created');
+        console.log(res.length, 'events created at ', new Date());
 
         return createThingsRecursively(users)
     })
